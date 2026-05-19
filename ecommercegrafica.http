@@ -1,0 +1,26 @@
+@ecommercegrafica_HostAddress = http://localhost:5189
+
+### Listar produtos
+GET {{ecommercegrafica_HostAddress}}/api/produtos
+Accept: application/json
+
+###
+
+### Obter produto por id
+GET {{ecommercegrafica_HostAddress}}/api/produtos/00000000-0000-0000-0000-000000000001
+Accept: application/json
+
+###
+
+### Criar produto
+POST {{ecommercegrafica_HostAddress}}/api/produtos
+Content-Type: application/json
+
+{
+  "nome": "Adesivo Redondo 5cm",
+  "descricao": "Adesivo vinil com corte especial",
+  "preco": 59.90,
+  "tipo": 4
+}
+
+###
