@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  api:
+    container_name: ecommercegrafica-api
+    image: ecommercegrafica
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "5000:8080"
+    build:
+      context: .
+      dockerfile: Dockerfile
