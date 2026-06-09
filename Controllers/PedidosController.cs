@@ -11,7 +11,7 @@ namespace ecommercegrafica.Controllers
         private readonly IPedidoService _pedidoService = pedidoService;
 
         [HttpGet]
-        public async Task<IActionResult> Listar([FromQuery] Guid? clienteId)
+        public async Task<IActionResult> Listar([FromQuery] int? clienteId)
         {
             var pedidos = clienteId.HasValue
                 ? await _pedidoService.ListarPorCliente(clienteId.Value)
@@ -20,8 +20,8 @@ namespace ecommercegrafica.Controllers
             return Ok(pedidos);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> ObterPorId(Guid id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> ObterPorId(int id)
         {
             var pedido = await _pedidoService.ObterPorId(id);
             return pedido is null ? NotFound() : Ok(pedido);
@@ -52,7 +52,7 @@ namespace ecommercegrafica.Controllers
     }
 
     public sealed record CriarPedidoRequest(
-        Guid ClienteId,
+        int ClienteId,
         string Logradouro,
         string Numero,
         string Bairro,
@@ -62,6 +62,6 @@ namespace ecommercegrafica.Controllers
         List<CriarItemPedidoRequest> Itens);
 
     public sealed record CriarItemPedidoRequest(
-        Guid ProdutoId,
+        int ProdutoId,
         int Quantidade);
 }

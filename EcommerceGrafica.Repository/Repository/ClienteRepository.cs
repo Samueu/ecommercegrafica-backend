@@ -31,7 +31,7 @@ namespace EcommerceGrafica.Repository.Repository
             }
         }
 
-        public async Task<ClienteModel?> GetById(Guid id)
+        public async Task<ClienteModel?> GetById(int id)
         {
             var sql = @"SELECT  id              AS Id,
                                 nome            AS Nome,
@@ -42,7 +42,7 @@ namespace EcommerceGrafica.Repository.Repository
                         WHERE   id = @Id";
 
             DynamicParameters parameters = new();
-            parameters.Add("@Id", id, DbType.Guid);
+            parameters.Add("@Id", id, DbType.Int32);
 
             try
             {
@@ -82,12 +82,12 @@ namespace EcommerceGrafica.Repository.Repository
         public async Task RegisterCliente(ClienteModel cliente)
         {
             var sql = @"INSERT INTO public.clientes
-                            (id, nome, email, telefone, cadastrado_em)
+                            (nome, email, telefone, cadastrado_em)
                         VALUES
-                            (@Id, @Nome, @Email, @Telefone, @CadastradoEm)";
+                            (@Nome, @Email, @Telefone, @CadastradoEm)
+                        RETURNING id";
 
             DynamicParameters parameters = new();
-            parameters.Add("@Id", cliente.Id, DbType.Guid);
             parameters.Add("@Nome", cliente.Nome, DbType.String);
             parameters.Add("@Email", cliente.Email, DbType.String);
             parameters.Add("@Telefone", (object?)cliente.Telefone ?? DBNull.Value, DbType.String);
@@ -95,7 +95,7 @@ namespace EcommerceGrafica.Repository.Repository
 
             try
             {
-                await _connection.Connection.ExecuteAsync(sql, parameters);
+                cliente.Id = await _connection.Connection.ExecuteScalarAsync<int>(sql, parameters);
                 Console.WriteLine("RegisterCliente - Cliente inserido com sucesso.");
             }
             catch (Exception ex)

@@ -14,9 +14,9 @@ namespace EcommerceGrafica.Application.Service
             return await _produtoRepository.ListarAtivos();
         }
 
-        public async Task<ProdutoModel?> ObterPorId(Guid id)
+        public async Task<ProdutoModel?> ObterPorId(int id)
         {
-            if (id == Guid.Empty)
+            if (id <= 0)
                 throw new DomainException("O identificador do produto é obrigatório.");
 
             return await _produtoRepository.GetById(id);
@@ -36,7 +36,6 @@ namespace EcommerceGrafica.Application.Service
             if (string.IsNullOrWhiteSpace(produto.Moeda))
                 throw new DomainException("A moeda é obrigatória.");
 
-            produto.Id = Guid.NewGuid();
             produto.Nome = produto.Nome.Trim();
             produto.Descricao = produto.Descricao?.Trim() ?? string.Empty;
             produto.Moeda = produto.Moeda.ToUpperInvariant();

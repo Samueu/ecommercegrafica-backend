@@ -4,8 +4,8 @@ namespace EcommerceGrafica.Domain.Model
 {
     public class PedidoModel
     {
-        public Guid Id { get; set; }
-        public Guid ClienteId { get; set; }
+        public int Id { get; set; }
+        public int ClienteId { get; set; }
         public StatusPedido Status { get; set; }
         public DateTime CriadoEm { get; set; }
 

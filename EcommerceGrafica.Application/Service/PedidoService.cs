@@ -20,17 +20,17 @@ namespace EcommerceGrafica.Application.Service
             return await _pedidoRepository.ListarTodos();
         }
 
-        public async Task<PedidoModel?> ObterPorId(Guid id)
+        public async Task<PedidoModel?> ObterPorId(int id)
         {
-            if (id == Guid.Empty)
+            if (id <= 0)
                 throw new DomainException("O identificador do pedido é obrigatório.");
 
             return await _pedidoRepository.GetById(id);
         }
 
-        public async Task<IEnumerable<PedidoModel>> ListarPorCliente(Guid clienteId)
+        public async Task<IEnumerable<PedidoModel>> ListarPorCliente(int clienteId)
         {
-            if (clienteId == Guid.Empty)
+            if (clienteId <= 0)
                 throw new DomainException("O identificador do cliente é obrigatório.");
 
             return await _pedidoRepository.ListarPorCliente(clienteId);
@@ -41,7 +41,7 @@ namespace EcommerceGrafica.Application.Service
             if (pedido is null)
                 throw new DomainException("O pedido é obrigatório.");
 
-            if (pedido.ClienteId == Guid.Empty)
+            if (pedido.ClienteId <= 0)
                 throw new DomainException("O cliente do pedido é obrigatório.");
 
             var cliente = await _clienteRepository.GetById(pedido.ClienteId);
@@ -56,28 +56,22 @@ namespace EcommerceGrafica.Application.Service
                 string.IsNullOrWhiteSpace(pedido.Cep))
                 throw new DomainException("O endereço de entrega é obrigatório (logradouro, cidade e CEP).");
 
-            pedido.Id = Guid.NewGuid();
             pedido.Status = StatusPedido.AguardandoPagamento;
             pedido.CriadoEm = DateTime.UtcNow;
             pedido.Estado = pedido.Estado?.Trim().ToUpperInvariant();
 
             foreach (var item in pedido.Itens)
             {
-                if (item.ProdutoId == Guid.Empty)
+                if (item.ProdutoId <= 0)
                     throw new DomainException("O produto do item é obrigatório.");
 
                 if (item.Quantidade <= 0)
                     throw new DomainException("A quantidade deve ser maior que zero.");
 
-                if (item.PrecoUnitario < 0)
-                    throw new DomainException("O preço unitário não pode ser negativo.");
-
                 var produto = await _produtoRepository.GetById(item.ProdutoId);
                 if (produto is null)
                     throw new DomainException($"Produto {item.ProdutoId} não encontrado.");
 
-                item.Id = Guid.NewGuid();
-                item.PedidoId = pedido.Id;
                 item.NomeProduto = produto.Nome;
                 item.PrecoUnitario = produto.Preco;
             }

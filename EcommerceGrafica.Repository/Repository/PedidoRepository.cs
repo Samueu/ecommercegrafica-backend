@@ -12,10 +12,21 @@ namespace EcommerceGrafica.Repository.Repository
 
         public async Task<IEnumerable<PedidoModel>> ListarTodos()
         {
-            return await CarregarPedidosAsync(@"SELECT * FROM public.pedidos ORDER BY criado_em DESC");
+            return await CarregarPedidosAsync(@"SELECT  id          AS Id,
+                                                        cliente_id  AS ClienteId,
+                                                        status      AS Status,
+                                                        criado_em   AS CriadoEm,
+                                                        logradouro  AS Logradouro,
+                                                        numero      AS Numero,
+                                                        bairro      AS Bairro,
+                                                        cidade      AS Cidade,
+                                                        estado      AS Estado,
+                                                        cep         AS Cep
+                                                FROM    public.pedidos
+                                                ORDER BY criado_em DESC");
         }
 
-        public async Task<PedidoModel?> GetById(Guid id)
+        public async Task<PedidoModel?> GetById(int id)
         {
             var pedidoSql = @"SELECT    id          AS Id,
                                         cliente_id  AS ClienteId,
@@ -40,7 +51,7 @@ namespace EcommerceGrafica.Repository.Repository
                              WHERE      pedido_id = @PedidoId";
 
             DynamicParameters pedidoParams = new();
-            pedidoParams.Add("@Id", id, DbType.Guid);
+            pedidoParams.Add("@Id", id, DbType.Int32);
 
             try
             {
@@ -49,7 +60,7 @@ namespace EcommerceGrafica.Repository.Repository
                     return null;
 
                 DynamicParameters itensParams = new();
-                itensParams.Add("@PedidoId", pedido.Id, DbType.Guid);
+                itensParams.Add("@PedidoId", pedido.Id, DbType.Int32);
 
                 var itens = await _connection.Connection.QueryAsync<ItemPedidoModel>(itensSql, itensParams);
                 pedido.Itens = itens.ToList();
@@ -62,7 +73,7 @@ namespace EcommerceGrafica.Repository.Repository
             }
         }
 
-        public async Task<IEnumerable<PedidoModel>> ListarPorCliente(Guid clienteId)
+        public async Task<IEnumerable<PedidoModel>> ListarPorCliente(int clienteId)
         {
             var sql = @"SELECT  id          AS Id,
                                 cliente_id  AS ClienteId,
@@ -79,7 +90,7 @@ namespace EcommerceGrafica.Repository.Repository
                         ORDER BY criado_em DESC";
 
             DynamicParameters parameters = new();
-            parameters.Add("@ClienteId", clienteId, DbType.Guid);
+            parameters.Add("@ClienteId", clienteId, DbType.Int32);
 
             try
             {
@@ -95,24 +106,25 @@ namespace EcommerceGrafica.Repository.Repository
         public async Task RegisterPedido(PedidoModel pedido)
         {
             var pedidoSql = @"INSERT INTO public.pedidos
-                                (id, cliente_id, status, criado_em,
+                                (cliente_id, status, criado_em,
                                  logradouro, numero, bairro, cidade, estado, cep)
                               VALUES
-                                (@Id, @ClienteId, @Status, @CriadoEm,
-                                 @Logradouro, @Numero, @Bairro, @Cidade, @Estado, @Cep)";
+                                (@ClienteId, @Status, @CriadoEm,
+                                 @Logradouro, @Numero, @Bairro, @Cidade, @Estado, @Cep)
+                              RETURNING id";
 
             var itemSql = @"INSERT INTO public.itens_pedido
-                                (id, pedido_id, produto_id, nome_produto, quantidade, preco_unitario)
+                                (pedido_id, produto_id, nome_produto, quantidade, preco_unitario)
                             VALUES
-                                (@Id, @PedidoId, @ProdutoId, @NomeProduto, @Quantidade, @PrecoUnitario)";
+                                (@PedidoId, @ProdutoId, @NomeProduto, @Quantidade, @PrecoUnitario)
+                            RETURNING id";
 
             await using var transaction = await _connection.Connection.BeginTransactionAsync();
 
             try
             {
                 DynamicParameters pedidoParams = new();
-                pedidoParams.Add("@Id", pedido.Id, DbType.Guid);
-                pedidoParams.Add("@ClienteId", pedido.ClienteId, DbType.Guid);
+                pedidoParams.Add("@ClienteId", pedido.ClienteId, DbType.Int32);
                 pedidoParams.Add("@Status", (int)pedido.Status, DbType.Int32);
                 pedidoParams.Add("@CriadoEm", pedido.CriadoEm, DbType.DateTime);
                 pedidoParams.Add("@Logradouro", (object?)pedido.Logradouro ?? DBNull.Value, DbType.String);
@@ -122,19 +134,19 @@ namespace EcommerceGrafica.Repository.Repository
                 pedidoParams.Add("@Estado", (object?)pedido.Estado ?? DBNull.Value, DbType.String);
                 pedidoParams.Add("@Cep", (object?)pedido.Cep ?? DBNull.Value, DbType.String);
 
-                await _connection.Connection.ExecuteAsync(pedidoSql, pedidoParams, transaction);
+                pedido.Id = await _connection.Connection.ExecuteScalarAsync<int>(pedidoSql, pedidoParams, transaction);
 
                 foreach (var item in pedido.Itens)
                 {
                     DynamicParameters itemParams = new();
-                    itemParams.Add("@Id", item.Id, DbType.Guid);
-                    itemParams.Add("@PedidoId", pedido.Id, DbType.Guid);
-                    itemParams.Add("@ProdutoId", item.ProdutoId, DbType.Guid);
+                    itemParams.Add("@PedidoId", pedido.Id, DbType.Int32);
+                    itemParams.Add("@ProdutoId", item.ProdutoId, DbType.Int32);
                     itemParams.Add("@NomeProduto", item.NomeProduto, DbType.String);
                     itemParams.Add("@Quantidade", item.Quantidade, DbType.Int32);
                     itemParams.Add("@PrecoUnitario", item.PrecoUnitario, DbType.Decimal);
 
-                    await _connection.Connection.ExecuteAsync(itemSql, itemParams, transaction);
+                    item.Id = await _connection.Connection.ExecuteScalarAsync<int>(itemSql, itemParams, transaction);
+                    item.PedidoId = pedido.Id;
                 }
 
                 await transaction.CommitAsync();

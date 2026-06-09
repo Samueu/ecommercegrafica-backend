@@ -15,9 +15,9 @@ namespace EcommerceGrafica.Application.Service
             return await _clienteRepository.ListarTodos();
         }
 
-        public async Task<ClienteModel?> ObterPorId(Guid id)
+        public async Task<ClienteModel?> ObterPorId(int id)
         {
-            if (id == Guid.Empty)
+            if (id <= 0)
                 throw new DomainException("O identificador do cliente é obrigatório.");
 
             return await _clienteRepository.GetById(id);
@@ -42,7 +42,6 @@ namespace EcommerceGrafica.Application.Service
             if (existente is not null)
                 throw new DomainException("Já existe um cliente cadastrado com esse e-mail.");
 
-            cliente.Id = Guid.NewGuid();
             cliente.Nome = cliente.Nome.Trim();
             cliente.Email = emailNormalizado;
             cliente.Telefone = string.IsNullOrWhiteSpace(cliente.Telefone) ? null : cliente.Telefone.Trim();

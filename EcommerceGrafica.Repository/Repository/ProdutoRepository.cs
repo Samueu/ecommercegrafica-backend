@@ -36,7 +36,7 @@ namespace EcommerceGrafica.Repository.Repository
             }
         }
 
-        public async Task<ProdutoModel?> GetById(Guid id)
+        public async Task<ProdutoModel?> GetById(int id)
         {
             var sql = @"SELECT  id          AS Id,
                                 nome        AS Nome,
@@ -51,7 +51,7 @@ namespace EcommerceGrafica.Repository.Repository
                         WHERE   id = @Id";
 
             DynamicParameters parameters = new();
-            parameters.Add("@Id", id, DbType.Guid);
+            parameters.Add("@Id", id, DbType.Int32);
 
             try
             {
@@ -67,12 +67,12 @@ namespace EcommerceGrafica.Repository.Repository
         public async Task RegisterProduto(ProdutoModel produto)
         {
             var sql = @"INSERT INTO public.produtos
-                            (id, nome, descricao, preco, moeda, tipo, ativo, criado_em, imagem_url)
+                            (nome, descricao, preco, moeda, tipo, ativo, criado_em, imagem_url)
                         VALUES
-                            (@Id, @Nome, @Descricao, @Preco, @Moeda, @Tipo, @Ativo, @CriadoEm, @ImagemUrl)";
+                            (@Nome, @Descricao, @Preco, @Moeda, @Tipo, @Ativo, @CriadoEm, @ImagemUrl)
+                        RETURNING id";
 
             DynamicParameters parameters = new();
-            parameters.Add("@Id", produto.Id, DbType.Guid);
             parameters.Add("@Nome", produto.Nome, DbType.String);
             parameters.Add("@Descricao", produto.Descricao, DbType.String);
             parameters.Add("@Preco", produto.Preco, DbType.Decimal);
@@ -84,7 +84,7 @@ namespace EcommerceGrafica.Repository.Repository
 
             try
             {
-                await _connection.Connection.ExecuteAsync(sql, parameters);
+                produto.Id = await _connection.Connection.ExecuteScalarAsync<int>(sql, parameters);
                 Console.WriteLine("RegisterProduto - Produto inserido com sucesso.");
             }
             catch (Exception ex)

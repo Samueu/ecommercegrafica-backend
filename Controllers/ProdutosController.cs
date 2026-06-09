@@ -18,8 +18,8 @@ namespace ecommercegrafica.Controllers
             return Ok(produtos);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> ObterPorId(Guid id)
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> ObterPorId(int id)
         {
             var produto = await _produtoService.ObterPorId(id);
             return produto is null ? NotFound() : Ok(produto);

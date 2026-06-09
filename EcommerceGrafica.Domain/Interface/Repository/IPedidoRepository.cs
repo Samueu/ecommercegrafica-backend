@@ -5,8 +5,8 @@ namespace EcommerceGrafica.Domain.Interface.Repository
     public interface IPedidoRepository
     {
         Task<IEnumerable<PedidoModel>> ListarTodos();
-        Task<PedidoModel?> GetById(Guid id);
-        Task<IEnumerable<PedidoModel>> ListarPorCliente(Guid clienteId);
+        Task<PedidoModel?> GetById(int id);
+        Task<IEnumerable<PedidoModel>> ListarPorCliente(int clienteId);
         Task RegisterPedido(PedidoModel pedido);
     }
 }
