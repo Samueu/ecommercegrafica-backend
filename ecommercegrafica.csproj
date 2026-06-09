@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <DefaultItemExcludes>$(DefaultItemExcludes);EcommerceGrafica.Domain\**;EcommerceGrafica.Application\**;EcommerceGrafica.Infrastructure\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);EcommerceGrafica.Domain\**;EcommerceGrafica.Application\**;EcommerceGrafica.Repository\**;EcommerceGrafica.Setup\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="EcommerceGrafica.Domain\EcommerceGrafica.Domain.csproj" />
     <ProjectReference Include="EcommerceGrafica.Application\EcommerceGrafica.Application.csproj" />
-    <ProjectReference Include="EcommerceGrafica.Infrastructure\EcommerceGrafica.Infrastructure.csproj" />
+    <ProjectReference Include="EcommerceGrafica.Repository\EcommerceGrafica.Repository.csproj" />
+    <ProjectReference Include="EcommerceGrafica.Setup\EcommerceGrafica.Setup.csproj" />
   </ItemGroup>
 
 </Project>

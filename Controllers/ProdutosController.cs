@@ -1,53 +1,51 @@
-using EcommerceGrafica.Application.Catalog.Commands.CreateProduto;
-using EcommerceGrafica.Application.Catalog.Queries.GetProdutoById;
-using EcommerceGrafica.Application.Catalog.Queries.GetProdutos;
-using EcommerceGrafica.Domain.Catalog.Enums;
-using MediatR;
+using EcommerceGrafica.Domain.Enums;
+using EcommerceGrafica.Domain.Interface.Service;
+using EcommerceGrafica.Domain.Model;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ecommercegrafica.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ProdutosController : ControllerBase
+namespace ecommercegrafica.Controllers
 {
-    private readonly IMediator _mediator;
-
-    public ProdutosController(IMediator mediator)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProdutosController(IProdutoService produtoService) : ControllerBase
     {
-        _mediator = mediator;
+        private readonly IProdutoService _produtoService = produtoService;
+
+        [HttpGet]
+        public async Task<IActionResult> Listar()
+        {
+            var produtos = await _produtoService.ListarAtivos();
+            return Ok(produtos);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> ObterPorId(Guid id)
+        {
+            var produto = await _produtoService.ObterPorId(id);
+            return produto is null ? NotFound() : Ok(produto);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Criar([FromBody] CriarProdutoRequest request)
+        {
+            var produto = new ProdutoModel
+            {
+                Nome = request.Nome,
+                Descricao = request.Descricao,
+                Preco = request.Preco,
+                Moeda = string.IsNullOrWhiteSpace(request.Moeda) ? "BRL" : request.Moeda,
+                Tipo = request.Tipo
+            };
+
+            var registrado = await _produtoService.RegistrarProduto(produto);
+            return CreatedAtAction(nameof(ObterPorId), new { id = registrado.Id }, registrado);
+        }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Listar(CancellationToken cancellationToken)
-    {
-        var produtos = await _mediator.Send(new GetProdutosQuery(), cancellationToken);
-        return Ok(produtos);
-    }
-
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> ObterPorId(Guid id, CancellationToken cancellationToken)
-    {
-        var produto = await _mediator.Send(new GetProdutoByIdQuery(id), cancellationToken);
-        return produto is null ? NotFound() : Ok(produto);
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Criar([FromBody] CriarProdutoRequest request, CancellationToken cancellationToken)
-    {
-        var result = await _mediator.Send(
-            new CreateProdutoCommand(request.Nome, request.Descricao, request.Preco, request.Tipo),
-            cancellationToken);
-
-        if (!result.IsSuccess)
-            return BadRequest(new { erro = result.Error });
-
-        return CreatedAtAction(nameof(ObterPorId), new { id = result.Value!.Id }, result.Value);
-    }
+    public sealed record CriarProdutoRequest(
+        string Nome,
+        string Descricao,
+        decimal Preco,
+        TipoProduto Tipo,
+        string? Moeda = null);
 }
-
-public sealed record CriarProdutoRequest(
-    string Nome,
-    string Descricao,
-    decimal Preco,
-    TipoProduto Tipo);

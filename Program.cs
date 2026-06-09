@@ -1,7 +1,7 @@
-using EcommerceGrafica.Application;
-using EcommerceGrafica.Infrastructure;
-using EcommerceGrafica.Infrastructure.Persistence.Seed;
 using ecommercegrafica.Middleware;
+using EcommerceGrafica.Domain.Settings;
+using EcommerceGrafica.Repository.Data;
+using EcommerceGrafica.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +12,13 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new() { Title = "E-commerce Gráfica API", Version = "v1" });
 });
 
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services
+    .IocConfiguration(builder.Configuration)
+    .Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
 
 var app = builder.Build();
 
-await DatabaseSeeder.SeedAsync(app.Services);
+await DatabaseBootstrapper.EnsureSchemaAsync(app.Services);
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 

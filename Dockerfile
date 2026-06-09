@@ -5,9 +5,10 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY ["ecommercegrafica.csproj", "./"]
-COPY ["EcommerceGrafica.Application/EcommerceGrafica.Application.csproj", "EcommerceGrafica.Application/"]
-COPY ["EcommerceGrafica.Infrastructure/EcommerceGrafica.Infrastructure.csproj", "EcommerceGrafica.Infrastructure/"]
 COPY ["EcommerceGrafica.Domain/EcommerceGrafica.Domain.csproj", "EcommerceGrafica.Domain/"]
+COPY ["EcommerceGrafica.Application/EcommerceGrafica.Application.csproj", "EcommerceGrafica.Application/"]
+COPY ["EcommerceGrafica.Repository/EcommerceGrafica.Repository.csproj", "EcommerceGrafica.Repository/"]
+COPY ["EcommerceGrafica.Setup/EcommerceGrafica.Setup.csproj", "EcommerceGrafica.Setup/"]
 RUN dotnet restore "ecommercegrafica.csproj"
 COPY . .
 RUN dotnet build "ecommercegrafica.csproj" -c Release -o /app/build
