@@ -1,20 +1,3 @@
-DO $$
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM   information_schema.columns
-        WHERE  table_schema = 'public'
-          AND  table_name   = 'produtos'
-          AND  column_name  = 'id'
-          AND  data_type    = 'uuid'
-    ) THEN
-        DROP TABLE IF EXISTS public.itens_pedido CASCADE;
-        DROP TABLE IF EXISTS public.pedidos      CASCADE;
-        DROP TABLE IF EXISTS public.produtos     CASCADE;
-        DROP TABLE IF EXISTS public.clientes     CASCADE;
-    END IF;
-END $$;
-
 CREATE TABLE IF NOT EXISTS public.produtos (
     id          SERIAL4         PRIMARY KEY,
     nome        VARCHAR(200)    NOT NULL,

@@ -12,6 +12,14 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new() { Title = "E-commerce Gráfica API", Version = "v1" });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy => policy
+        .AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod());
+});
+
 builder.Services
     .IocConfiguration(builder.Configuration)
     .Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
@@ -30,6 +38,8 @@ app.UseSwaggerUI(options =>
 });
 
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
+
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
