@@ -19,7 +19,8 @@ namespace EcommerceGrafica.Repository.Repository
                                 moeda       AS Moeda,
                                 tipo        AS Tipo,
                                 ativo       AS Ativo,
-                                criado_em   AS CriadoEm
+                                criado_em   AS CriadoEm,
+                                imagem_url  AS ImagemUrl
                         FROM    public.produtos
                         WHERE   ativo = TRUE
                         ORDER BY nome";
@@ -44,7 +45,8 @@ namespace EcommerceGrafica.Repository.Repository
                                 moeda       AS Moeda,
                                 tipo        AS Tipo,
                                 ativo       AS Ativo,
-                                criado_em   AS CriadoEm
+                                criado_em   AS CriadoEm,
+                                imagem_url  AS ImagemUrl
                         FROM    public.produtos
                         WHERE   id = @Id";
 
@@ -65,9 +67,9 @@ namespace EcommerceGrafica.Repository.Repository
         public async Task RegisterProduto(ProdutoModel produto)
         {
             var sql = @"INSERT INTO public.produtos
-                            (id, nome, descricao, preco, moeda, tipo, ativo, criado_em)
+                            (id, nome, descricao, preco, moeda, tipo, ativo, criado_em, imagem_url)
                         VALUES
-                            (@Id, @Nome, @Descricao, @Preco, @Moeda, @Tipo, @Ativo, @CriadoEm)";
+                            (@Id, @Nome, @Descricao, @Preco, @Moeda, @Tipo, @Ativo, @CriadoEm, @ImagemUrl)";
 
             DynamicParameters parameters = new();
             parameters.Add("@Id", produto.Id, DbType.Guid);
@@ -78,6 +80,7 @@ namespace EcommerceGrafica.Repository.Repository
             parameters.Add("@Tipo", (int)produto.Tipo, DbType.Int32);
             parameters.Add("@Ativo", produto.Ativo, DbType.Boolean);
             parameters.Add("@CriadoEm", produto.CriadoEm, DbType.DateTime);
+            parameters.Add("@ImagemUrl", (object?)produto.ImagemUrl ?? DBNull.Value, DbType.String);
 
             try
             {

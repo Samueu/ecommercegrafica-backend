@@ -20,7 +20,8 @@ Content-Type: application/json
   "nome": "Adesivo Redondo 5cm",
   "descricao": "Adesivo vinil com corte especial",
   "preco": 59.90,
-  "tipo": 4
+  "tipo": 4,
+  "imagemUrl": "https://placehold.co/600x400?text=Adesivo"
 }
 
 ###

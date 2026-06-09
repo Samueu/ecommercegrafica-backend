@@ -42,6 +42,7 @@ namespace EcommerceGrafica.Application.Service
             produto.Moeda = produto.Moeda.ToUpperInvariant();
             produto.Ativo = true;
             produto.CriadoEm = DateTime.UtcNow;
+            produto.ImagemUrl = string.IsNullOrWhiteSpace(produto.ImagemUrl) ? null : produto.ImagemUrl.Trim();
 
             await _produtoRepository.RegisterProduto(produto);
             return produto;

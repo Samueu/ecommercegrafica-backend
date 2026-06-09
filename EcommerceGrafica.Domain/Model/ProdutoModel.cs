@@ -12,5 +12,6 @@ namespace EcommerceGrafica.Domain.Model
         public TipoProduto Tipo { get; set; }
         public bool Ativo { get; set; }
         public DateTime CriadoEm { get; set; }
+        public string? ImagemUrl { get; set; }
     }
 }

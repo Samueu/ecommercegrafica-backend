@@ -6,8 +6,11 @@ CREATE TABLE IF NOT EXISTS public.produtos (
     moeda       VARCHAR(3)      NOT NULL DEFAULT 'BRL',
     tipo        INTEGER         NOT NULL,
     ativo       BOOLEAN         NOT NULL DEFAULT TRUE,
-    criado_em   TIMESTAMPTZ     NOT NULL
+    criado_em   TIMESTAMPTZ     NOT NULL,
+    imagem_url  VARCHAR(500)    NULL
 );
+
+ALTER TABLE public.produtos ADD COLUMN IF NOT EXISTS imagem_url VARCHAR(500) NULL;
 
 CREATE TABLE IF NOT EXISTS public.clientes (
     id              UUID            PRIMARY KEY,

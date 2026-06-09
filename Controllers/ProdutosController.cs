@@ -34,7 +34,8 @@ namespace ecommercegrafica.Controllers
                 Descricao = request.Descricao,
                 Preco = request.Preco,
                 Moeda = string.IsNullOrWhiteSpace(request.Moeda) ? "BRL" : request.Moeda,
-                Tipo = request.Tipo
+                Tipo = request.Tipo,
+                ImagemUrl = request.ImagemUrl
             };
 
             var registrado = await _produtoService.RegistrarProduto(produto);
@@ -47,5 +48,6 @@ namespace ecommercegrafica.Controllers
         string Descricao,
         decimal Preco,
         TipoProduto Tipo,
-        string? Moeda = null);
+        string? Moeda = null,
+        string? ImagemUrl = null);
 }
