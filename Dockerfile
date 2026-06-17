@@ -1,5 +1,9 @@
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
+# Render injeta a porta via env PORT em tempo de execução. Em dev (docker
+# compose) o default abaixo se aplica. O ASPNETCORE_URLS é montado no
+# ENTRYPOINT para que o $PORT seja expandido em runtime.
+ENV PORT=8080
 EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
@@ -23,4 +27,5 @@ COPY --from=publish /app/publish .
 RUN useradd -m appuser
 USER appuser
 
-ENTRYPOINT ["dotnet", "ecommercegrafica.dll"]
+# Shell form para que $PORT seja avaliado em runtime (Render injeta PORT por request de serviço).
+ENTRYPOINT ["sh", "-c", "export ASPNETCORE_URLS=http://+:${PORT} && exec dotnet ecommercegrafica.dll"]

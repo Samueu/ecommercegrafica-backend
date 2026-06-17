@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: ecommercegrafica-backend
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheckPath: /swagger
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # ASPNETCORE_URLS é montado no ENTRYPOINT do Dockerfile a partir de $PORT.
+      # O Render injeta PORT automaticamente.
+      - key: PORT
+        value: 10000
+
+      # -------------------------------------------------------------------
+      # SECRETS (preencher no dashboard do Render, NUNCA commitar)
+      # -------------------------------------------------------------------
+      - key: ConnectionStrings__Postgres
+        sync: false   # sync:false força preenchimento manual no painel
+      - key: Jwt__SigningKey
+        sync: false   # gere com: openssl rand -base64 48
+
+      # -------------------------------------------------------------------
+      # JWT
+      # -------------------------------------------------------------------
+      - key: Jwt__Issuer
+        value: ecommercegrafica
+      - key: Jwt__Audience
+        value: ecommercegrafica.web
+      - key: Jwt__AccessTokenMinutes
+        value: "15"
+      - key: Jwt__RefreshTokenDays
+        value: "7"
+
+      # -------------------------------------------------------------------
+      # Cookies — cross-site (front em outro subdomínio) exige None + Secure
+      # -------------------------------------------------------------------
+      - key: AuthCookie__AccessTokenName
+        value: eg_at
+      - key: AuthCookie__RefreshTokenName
+        value: eg_rt
+      - key: AuthCookie__SameSite
+        value: None
+      - key: AuthCookie__Secure
+        value: "true"
+      - key: AuthCookie__Domain
+        value: ""   # vazio = host atual (correto para Render)
+
+      # -------------------------------------------------------------------
+      # CORS — listar TODAS as origens do frontend (sem barra no final)
+      # -------------------------------------------------------------------
+      - key: Cors__AllowedOrigins__0
+        value: https://ecommercegrafica-frontend.onrender.com

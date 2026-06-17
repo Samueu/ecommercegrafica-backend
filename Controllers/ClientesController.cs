@@ -1,11 +1,13 @@
 using EcommerceGrafica.Domain.Interface.Service;
 using EcommerceGrafica.Domain.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ecommercegrafica.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "admin")]
     public class ClientesController(IClienteService clienteService) : ControllerBase
     {
         private readonly IClienteService _clienteService = clienteService;

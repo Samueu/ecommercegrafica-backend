@@ -1,6 +1,7 @@
 using EcommerceGrafica.Domain.Enums;
 using EcommerceGrafica.Domain.Interface.Service;
 using EcommerceGrafica.Domain.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ecommercegrafica.Controllers
@@ -12,6 +13,7 @@ namespace ecommercegrafica.Controllers
         private readonly IProdutoService _produtoService = produtoService;
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Listar()
         {
             var produtos = await _produtoService.ListarAtivos();
@@ -19,6 +21,7 @@ namespace ecommercegrafica.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> ObterPorId(int id)
         {
             var produto = await _produtoService.ObterPorId(id);
@@ -26,6 +29,7 @@ namespace ecommercegrafica.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Criar([FromBody] CriarProdutoRequest request)
         {
             var produto = new ProdutoModel

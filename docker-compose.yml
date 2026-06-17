@@ -1,12 +1,18 @@
-version: "3.8"
-
 services:
   api:
     container_name: ecommercegrafica-api
     image: ecommercegrafica
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
+      - PORT=8080
+      # Em dev local você pode sobrescrever as settings via env vars no formato
+      # Section__Key (duplo underscore). As linhas abaixo estão comentadas porque
+      # o appsettings.Development.json já cobre o caso default.
+      # - ConnectionStrings__Postgres=Host=...;Port=5432;Database=...;Username=...;Password=...;SSL Mode=Require;Trust Server Certificate=true
+      # - Jwt__SigningKey=dev_only_change_me_signing_key_min_32_chars_!!!
+      # - Cors__AllowedOrigins__0=http://localhost:3000
+      # - AuthCookie__SameSite=Lax
+      # - AuthCookie__Secure=false
     ports:
       - "5000:8080"
     build:
