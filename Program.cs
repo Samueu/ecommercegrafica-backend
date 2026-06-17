@@ -39,6 +39,24 @@ if (string.IsNullOrWhiteSpace(jwt.SigningKey) || jwt.SigningKey.Length < 32)
         "Defina via variável de ambiente em produção.");
 }
 
+// Suporte adicional: aceita também uma variável CSV (CorsAllowedOrigins=https://a,https://b),
+// que é mais simples de configurar em painéis de hospedagem (Render etc.) do que
+// múltiplas chaves indexadas no formato Cors__AllowedOrigins__0, __1…
+var csvOrigins = builder.Configuration["CorsAllowedOrigins"];
+if (!string.IsNullOrWhiteSpace(csvOrigins))
+{
+    corsCfg.AllowedOrigins = csvOrigins
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+// Normaliza: remove barras finais (origin do browser nunca tem '/' no final).
+corsCfg.AllowedOrigins = corsCfg.AllowedOrigins
+    .Select(o => o.TrimEnd('/'))
+    .Where(o => !string.IsNullOrWhiteSpace(o))
+    .ToArray();
+
+Console.WriteLine($"[CORS] AllowedOrigins efetivas: [{string.Join(", ", corsCfg.AllowedOrigins)}]");
+
 // ---------------------------------------------------------------------------
 // CORS com credenciais — exige lista explícita de origens (não pode usar '*')
 // ---------------------------------------------------------------------------
@@ -49,6 +67,9 @@ builder.Services.AddCors(options =>
         if (corsCfg.AllowedOrigins.Length == 0)
         {
             // Fallback dev: localhost em portas comuns do Next.
+            Console.WriteLine(
+                "[CORS] Nenhuma origem configurada. Usando fallback de dev (localhost:3000). " +
+                "Em produção, defina Cors__AllowedOrigins__0 ou CorsAllowedOrigins.");
             policy.WithOrigins(
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",

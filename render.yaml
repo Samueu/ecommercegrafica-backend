@@ -49,7 +49,10 @@ services:
         value: ""   # vazio = host atual (correto para Render)
 
       # -------------------------------------------------------------------
-      # CORS — listar TODAS as origens do frontend (sem barra no final)
+      # CORS — listar TODAS as origens do frontend (sem barra no final).
+      # Aceita 2 formatos (basta usar UM):
+      #   a) CorsAllowedOrigins=https://a.com,https://b.com   (CSV, recomendado)
+      #   b) Cors__AllowedOrigins__0=https://a.com            (indexado .NET)
       # -------------------------------------------------------------------
-      - key: Cors__AllowedOrigins__0
+      - key: CorsAllowedOrigins
         value: https://ecommercegrafica-frontend.onrender.com
