@@ -6,6 +6,7 @@ using EcommerceGrafica.Domain.Settings;
 using EcommerceGrafica.Repository.Data;
 using EcommerceGrafica.Setup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
@@ -26,7 +27,25 @@ builder.Services
     .Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"))
     .Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
     .Configure<AuthCookieSettings>(builder.Configuration.GetSection("AuthCookie"))
-    .Configure<CorsSettings>(builder.Configuration.GetSection("Cors"));
+    .Configure<CorsSettings>(builder.Configuration.GetSection("Cors"))
+    .Configure<R2Settings>(builder.Configuration.GetSection("R2"));
+
+// ---------------------------------------------------------------------------
+// Limites de upload (multipart) — necessários para o cadastro de produto,
+// que envia a imagem do produto para o Cloudflare R2.
+// ---------------------------------------------------------------------------
+const long MaxUploadBytes = 10 * 1024 * 1024; // 10 MB
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = MaxUploadBytes;
+    options.ValueLengthLimit = int.MaxValue;
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = MaxUploadBytes;
+});
 
 var jwt = builder.Configuration.GetSection("Jwt").Get<JwtSettings>() ?? new JwtSettings();
 var cookieCfg = builder.Configuration.GetSection("AuthCookie").Get<AuthCookieSettings>() ?? new AuthCookieSettings();
