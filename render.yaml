@@ -55,4 +55,4 @@ services:
       #   b) Cors__AllowedOrigins__0=https://a.com            (indexado .NET)
       # -------------------------------------------------------------------
       - key: CorsAllowedOrigins
-        value: https://ecommercegrafica-frontend.onrender.com
+        value: https://mariacristinagrafica.shop,https://www.mariacristinagrafica.shop,http://localhost:3000,http://127.0.0.1:3000

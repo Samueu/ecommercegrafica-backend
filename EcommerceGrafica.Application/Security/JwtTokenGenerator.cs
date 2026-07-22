@@ -34,14 +34,18 @@ namespace EcommerceGrafica.Application.Security
             var agora = DateTime.UtcNow;
             var expira = agora.AddMinutes(_settings.AccessTokenMinutes);
 
+            var role = usuario.Role.ToString().ToLowerInvariant();
+
             // Claims mínimos (princípio da minimização de dados — LGPD art. 6º, III).
+            // IMPORTANTE: usar o claim curto "role" — Program.cs define RoleClaimType = "role".
+            // ClaimTypes.Role serializa com URI longa e [Authorize(Roles = "admin")] falha (403).
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
                 new(JwtRegisteredClaimNames.Email, usuario.Email),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
                 new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new(ClaimTypes.Role, usuario.Role.ToString().ToLowerInvariant())
+                new("role", role)
             };
 
             var token = new JwtSecurityToken(
