@@ -1,5 +1,6 @@
 using System.Data;
 using Dapper;
+using EcommerceGrafica.Domain.Exceptions;
 using EcommerceGrafica.Domain.Interface.Repository;
 using EcommerceGrafica.Domain.Model;
 using EcommerceGrafica.Repository.Data;
@@ -57,7 +58,9 @@ namespace EcommerceGrafica.Repository.Repository
             catch (Exception ex)
             {
                 Console.WriteLine("RegistrarImagens - Erro: " + ex.Message);
-                throw;
+                throw new DomainException(
+                    "Não foi possível salvar as imagens do produto no banco. " +
+                    "Verifique se a tabela produto_imagens existe (redeploy da API executa Schema.sql).");
             }
         }
     }

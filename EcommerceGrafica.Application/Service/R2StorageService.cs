@@ -131,8 +131,10 @@ namespace EcommerceGrafica.Application.Service
                 string.IsNullOrWhiteSpace(_settings.BucketName) ||
                 string.IsNullOrWhiteSpace(_settings.PublicBaseUrl))
             {
-                throw new InvalidOperationException(
-                    "Configuração do Cloudflare R2 incompleta. Verifique a seção 'R2' em appsettings ou as variáveis de ambiente (R2__AccountId, R2__AccessKeyId, R2__SecretAccessKey, R2__BucketName, R2__PublicBaseUrl).");
+                throw new DomainException(
+                    "Configuração do Cloudflare R2 incompleta no servidor. " +
+                    "Defina R2__AccountId, R2__AccessKeyId, R2__SecretAccessKey, R2__BucketName e R2__PublicBaseUrl " +
+                    "nas variáveis de ambiente da API (Render).");
             }
         }
 

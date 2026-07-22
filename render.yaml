@@ -56,3 +56,18 @@ services:
       # -------------------------------------------------------------------
       - key: CorsAllowedOrigins
         value: https://mariacristinagrafica.shop,https://www.mariacristinagrafica.shop,http://localhost:3000,http://127.0.0.1:3000
+
+      # -------------------------------------------------------------------
+      # Cloudflare R2 — obrigatório para upload de imagens de produto (POST /api/Produtos)
+      # Preencher no dashboard do Render (sync: false = secret manual)
+      # -------------------------------------------------------------------
+      - key: R2__AccountId
+        sync: false
+      - key: R2__AccessKeyId
+        sync: false
+      - key: R2__SecretAccessKey
+        sync: false
+      - key: R2__BucketName
+        value: ecommercegrafica-produtos
+      - key: R2__PublicBaseUrl
+        sync: false

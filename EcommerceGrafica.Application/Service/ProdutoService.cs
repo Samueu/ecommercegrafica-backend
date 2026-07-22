@@ -51,6 +51,9 @@ namespace EcommerceGrafica.Application.Service
             if (string.IsNullOrWhiteSpace(produto.Moeda))
                 throw new DomainException("A moeda é obrigatória.");
 
+            if (!Enum.IsDefined(produto.Tipo) || (int)produto.Tipo < 1)
+                throw new DomainException("Selecione um tipo de produto válido.");
+
             produto.Nome = produto.Nome.Trim();
             produto.Descricao = produto.Descricao?.Trim() ?? string.Empty;
             produto.Moeda = produto.Moeda.ToUpperInvariant();
