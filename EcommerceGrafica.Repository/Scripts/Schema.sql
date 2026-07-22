@@ -94,3 +94,25 @@ CREATE TABLE IF NOT EXISTS public.auth_audit (
 
 CREATE INDEX IF NOT EXISTS ix_auth_audit_email_evento ON public.auth_audit(email_tentativa, evento);
 CREATE INDEX IF NOT EXISTS ix_auth_audit_criado_em ON public.auth_audit(criado_em);
+
+-- ============================================================================
+-- Galeria de imagens do produto (URLs públicas no Cloudflare R2)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.produto_imagens (
+    id          SERIAL4         PRIMARY KEY,
+    produto_id  INTEGER         NOT NULL REFERENCES public.produtos(id) ON DELETE CASCADE,
+    url         VARCHAR(500)    NOT NULL,
+    ordem       INTEGER         NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS ix_produto_imagens_produto_id ON public.produto_imagens(produto_id);
+
+-- Migra imagem legada (coluna imagem_url) para a galeria, se ainda não existir.
+INSERT INTO public.produto_imagens (produto_id, url, ordem)
+SELECT p.id, p.imagem_url, 0
+FROM public.produtos p
+WHERE p.imagem_url IS NOT NULL
+  AND NOT EXISTS (
+      SELECT 1 FROM public.produto_imagens pi WHERE pi.produto_id = p.id
+  );

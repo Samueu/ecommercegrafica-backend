@@ -34,7 +34,7 @@ builder.Services
 // Limites de upload (multipart) — necessários para o cadastro de produto,
 // que envia a imagem do produto para o Cloudflare R2.
 // ---------------------------------------------------------------------------
-const long MaxUploadBytes = 10 * 1024 * 1024; // 10 MB
+const long MaxUploadBytes = 30 * 1024 * 1024; // 30 MB (até 8 imagens × 5 MB)
 
 builder.Services.Configure<FormOptions>(options =>
 {

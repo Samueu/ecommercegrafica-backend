@@ -70,6 +70,8 @@ Accept: application/json
 ###
 
 ### Criar produto (admin — execute "Login admin" antes)
+# Envie arquivos binários reais no campo Imagens para upload R2.
+# Fallback abaixo usa ImagemUrl (URL externa, sem R2).
 POST {{ecommercegrafica_HostAddress}}/api/Produtos
 Content-Type: multipart/form-data; boundary=----EcommerceFormBoundary
 

@@ -5,13 +5,23 @@ using EcommerceGrafica.Domain.Model;
 
 namespace EcommerceGrafica.Application.Service
 {
-    public class ProdutoService(IProdutoRepository produtoRepository) : IProdutoService
+    public class ProdutoService(
+        IProdutoRepository produtoRepository,
+        IProdutoImagemRepository produtoImagemRepository) : IProdutoService
     {
         private readonly IProdutoRepository _produtoRepository = produtoRepository;
+        private readonly IProdutoImagemRepository _produtoImagemRepository = produtoImagemRepository;
 
         public async Task<IEnumerable<ProdutoModel>> ListarAtivos()
         {
-            return await _produtoRepository.ListarAtivos();
+            var produtos = (await _produtoRepository.ListarAtivos()).ToList();
+
+            foreach (var produto in produtos)
+            {
+                await AnexarImagens(produto);
+            }
+
+            return produtos;
         }
 
         public async Task<ProdutoModel?> ObterPorId(int id)
@@ -19,7 +29,12 @@ namespace EcommerceGrafica.Application.Service
             if (id <= 0)
                 throw new DomainException("O identificador do produto é obrigatório.");
 
-            return await _produtoRepository.GetById(id);
+            var produto = await _produtoRepository.GetById(id);
+            if (produto is null)
+                return null;
+
+            await AnexarImagens(produto);
+            return produto;
         }
 
         public async Task<ProdutoModel> RegistrarProduto(ProdutoModel produto)
@@ -41,10 +56,61 @@ namespace EcommerceGrafica.Application.Service
             produto.Moeda = produto.Moeda.ToUpperInvariant();
             produto.Ativo = true;
             produto.CriadoEm = DateTime.UtcNow;
-            produto.ImagemUrl = string.IsNullOrWhiteSpace(produto.ImagemUrl) ? null : produto.ImagemUrl.Trim();
+
+            NormalizarImagens(produto);
 
             await _produtoRepository.RegisterProduto(produto);
+
+            if (produto.Imagens.Count > 0)
+            {
+                await _produtoImagemRepository.RegistrarImagens(produto.Id, produto.Imagens);
+            }
+
             return produto;
+        }
+
+        private async Task AnexarImagens(ProdutoModel produto)
+        {
+            var imagens = await _produtoImagemRepository.ListarPorProduto(produto.Id);
+            produto.Imagens = imagens.ToList();
+
+            if (produto.Imagens.Count > 0)
+            {
+                produto.ImagemUrl ??= produto.Imagens[0].Url;
+            }
+            else if (!string.IsNullOrWhiteSpace(produto.ImagemUrl))
+            {
+                produto.Imagens.Add(new ProdutoImagemModel
+                {
+                    ProdutoId = produto.Id,
+                    Url = produto.ImagemUrl,
+                    Ordem = 0
+                });
+            }
+        }
+
+        private static void NormalizarImagens(ProdutoModel produto)
+        {
+            produto.Imagens = produto.Imagens
+                .Where(i => !string.IsNullOrWhiteSpace(i.Url))
+                .Select((img, index) => new ProdutoImagemModel
+                {
+                    Url = img.Url.Trim(),
+                    Ordem = img.Ordem >= 0 ? img.Ordem : index
+                })
+                .OrderBy(i => i.Ordem)
+                .ToList();
+
+            if (produto.Imagens.Count > 0)
+            {
+                produto.ImagemUrl = produto.Imagens[0].Url;
+            }
+            else
+            {
+                produto.ImagemUrl = string.IsNullOrWhiteSpace(produto.ImagemUrl)
+                    ? null
+                    : produto.ImagemUrl.Trim();
+            }
         }
     }
 }

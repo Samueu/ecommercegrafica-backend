@@ -13,5 +13,8 @@ namespace EcommerceGrafica.Domain.Model
         public bool Ativo { get; set; }
         public DateTime CriadoEm { get; set; }
         public string? ImagemUrl { get; set; }
+
+        /// <summary>URLs públicas (R2) ordenadas para galeria/carrossel.</summary>
+        public List<ProdutoImagemModel> Imagens { get; set; } = new();
     }
 }

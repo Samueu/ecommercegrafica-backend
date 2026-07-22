@@ -26,6 +26,7 @@ namespace EcommerceGrafica.Setup
 
         private static IServiceCollection RegisterInternalRepository(this IServiceCollection services) => services
             .AddScoped<IProdutoRepository, ProdutoRepository>()
+            .AddScoped<IProdutoImagemRepository, ProdutoImagemRepository>()
             .AddScoped<IClienteRepository, ClienteRepository>()
             .AddScoped<IPedidoRepository, PedidoRepository>()
             .AddScoped<IUsuarioRepository, UsuarioRepository>()
