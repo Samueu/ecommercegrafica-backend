@@ -1,45 +1,120 @@
 @ecommercegrafica_HostAddress = http://localhost:5189
 
-### Listar produtos
-GET {{ecommercegrafica_HostAddress}}/api/produtos
-Accept: application/json
+# Usuários criados pelo Seed.sql (somente desenvolvimento):
+#   admin@loja.com          / Admin@123    (role: admin)
+#   maria.silva@example.com / Cliente@123  (role: customer)
+#
+# A API devolve a sessão em cookies httpOnly (eg_at, eg_rt).
+# Execute um login antes dos endpoints protegidos; o REST Client reutiliza os cookies.
 
-###
-
-### Obter produto por id
-GET {{ecommercegrafica_HostAddress}}/api/produtos/1
-Accept: application/json
-
-###
-
-### Criar produto
-POST {{ecommercegrafica_HostAddress}}/api/produtos
+### Login admin (dev seed)
+# @name loginAdmin
+POST {{ecommercegrafica_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "nome": "Adesivo Redondo 5cm",
-  "descricao": "Adesivo vinil com corte especial",
-  "preco": 59.90,
-  "tipo": 4,
-  "imagemUrl": "https://placehold.co/600x400?text=Adesivo"
+  "email": "admin@loja.com",
+  "senha": "Admin@123"
 }
 
 ###
 
-### Listar clientes
-GET {{ecommercegrafica_HostAddress}}/api/clientes
+### Login cliente Maria (dev seed)
+# @name loginCustomer
+POST {{ecommercegrafica_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "maria.silva@example.com",
+  "senha": "Cliente@123"
+}
+
+###
+
+### Cadastrar novo usuário (cria cliente + usuário customer)
+POST {{ecommercegrafica_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "nome": "João Teste",
+  "email": "joao.teste@example.com",
+  "senha": "Teste@1234",
+  "telefone": "11988887777",
+  "consentimentoLgpd": true,
+  "consentimentoVersao": "v1"
+}
+
+###
+
+### Usuário autenticado (requer cookie de sessão)
+GET {{ecommercegrafica_HostAddress}}/api/auth/me
 Accept: application/json
 
 ###
 
-### Obter cliente por id
-GET {{ecommercegrafica_HostAddress}}/api/clientes/1
+### Logout (limpa cookies de sessão)
+POST {{ecommercegrafica_HostAddress}}/api/auth/logout
+
+###
+
+### Listar produtos (público)
+GET {{ecommercegrafica_HostAddress}}/api/Produtos
 Accept: application/json
 
 ###
 
-### Criar cliente
-POST {{ecommercegrafica_HostAddress}}/api/clientes
+### Obter produto por id (público)
+GET {{ecommercegrafica_HostAddress}}/api/Produtos/1
+Accept: application/json
+
+###
+
+### Criar produto (admin — execute "Login admin" antes)
+POST {{ecommercegrafica_HostAddress}}/api/Produtos
+Content-Type: multipart/form-data; boundary=----EcommerceFormBoundary
+
+------EcommerceFormBoundary
+Content-Disposition: form-data; name="Nome"
+
+Adesivo Redondo 5cm
+------EcommerceFormBoundary
+Content-Disposition: form-data; name="Descricao"
+
+Adesivo vinil com corte especial
+------EcommerceFormBoundary
+Content-Disposition: form-data; name="Preco"
+
+59.90
+------EcommerceFormBoundary
+Content-Disposition: form-data; name="Tipo"
+
+4
+------EcommerceFormBoundary
+Content-Disposition: form-data; name="Moeda"
+
+BRL
+------EcommerceFormBoundary
+Content-Disposition: form-data; name="ImagemUrl"
+
+https://placehold.co/600x400?text=Adesivo
+------EcommerceFormBoundary--
+
+###
+
+### Listar clientes (admin)
+GET {{ecommercegrafica_HostAddress}}/api/Clientes
+Accept: application/json
+
+###
+
+### Obter cliente por id (admin)
+GET {{ecommercegrafica_HostAddress}}/api/Clientes/1
+Accept: application/json
+
+###
+
+### Criar cliente (admin — alternativa ao /auth/register)
+POST {{ecommercegrafica_HostAddress}}/api/Clientes
 Content-Type: application/json
 
 {
@@ -50,26 +125,26 @@ Content-Type: application/json
 
 ###
 
-### Listar pedidos
-GET {{ecommercegrafica_HostAddress}}/api/pedidos
+### Listar pedidos (autenticado — admin vê todos; customer conforme regra da API)
+GET {{ecommercegrafica_HostAddress}}/api/Pedidos
 Accept: application/json
 
 ###
 
-### Listar pedidos de um cliente
-GET {{ecommercegrafica_HostAddress}}/api/pedidos?clienteId=1
+### Listar pedidos de um cliente (autenticado)
+GET {{ecommercegrafica_HostAddress}}/api/Pedidos?clienteId=1
 Accept: application/json
 
 ###
 
-### Obter pedido por id
-GET {{ecommercegrafica_HostAddress}}/api/pedidos/1
+### Obter pedido por id (autenticado)
+GET {{ecommercegrafica_HostAddress}}/api/Pedidos/1
 Accept: application/json
 
 ###
 
-### Criar pedido
-POST {{ecommercegrafica_HostAddress}}/api/pedidos
+### Criar pedido (autenticado — execute login antes; clienteId deve existir)
+POST {{ecommercegrafica_HostAddress}}/api/Pedidos
 Content-Type: application/json
 
 {
